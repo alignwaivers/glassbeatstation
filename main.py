@@ -68,6 +68,7 @@ def on_release(key):
         pass
 
 def key_mapper(key):
+    """ This function maps a 4x4 grid from 4 rows x 4 columns on keyboard"""
     if key.char == '1':
         return 0, 0
     elif key.char == '2':
@@ -107,11 +108,6 @@ def key_mapper(key):
 
 Pad = Grid(4, 4)
 
-print(Pad)
-
 with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
     listener.join()
-# listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-# listener.start()
-# listener.join()
 
