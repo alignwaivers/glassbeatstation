@@ -1,113 +1,73 @@
-#/usr/bin/python3
+# /usr/bin/python3
 
-import os
-# import console_display
+import os, time
 from pynput import keyboard
 
-
-class Grid():
-    def __init__(self, rows, cols):
-        self.buttons = {}
-        self.rows = rows
-        self.cols = cols
-        for x in range(rows):
-            for y in range(cols):
-                self.buttons[(x, y)] = (Button(x, y))
-
-    def __str__(self):
-        grid_str = ""
-        for x in range(self.rows):
-            for y in range(self.cols):
-                if self.buttons[(x, y)]._state == True:
-                    grid_str += "X "
-                elif self.buttons[(x, y)]._state == False:
-                    grid_str += "0 "
-                else:
-                    print("error has occurred, Button.state should be True or False")
-            grid_str += '\n'
-        return grid_str
-
-
-class Button():
-    def __init__(self, x, y):
-        self._state = False  # state is pressed or not
-        self.x_pos = None
-        self.y_pos = None
-
-    def change_state(self, state):
-        if self._state != state:
-            self._state = state
-        else:
-            raise ValueError("This is a redundant button-press")
+import grid
+import cpu_keyboard_mapping
+import midi_controller
 
 
 
 def cls():
     os.system('cls' if os.name == 'nt' else 'clear')
+    for i in range(9):
+        print()
+
+
+def keyaction(key, release):
+    try:
+        keychar = key.char
+        button = KeyPad.buttons[cpu_keyboard_mapping.key_mapper(keychar)]
+        try:
+            if button._state != release:
+                button.change_state(True)
+            else:
+                print(f"Redundant key action, already registered in {button._state}")
+        except (KeyError):
+            print("Unregistered keypress", key)
+    except  (AttributeError):
+        pass
 
 
 def on_press(key):
-    try:
-        button = Pad.buttons[key_mapper(key)]
-        cls()
-
-        if button._state == False:
-            button.change_state(True)
-            print(Pad)
-    except:
-        pass
+    keyaction(key, True)
+    print(KeyPad)
 
 def on_release(key):
-    try:
-        button = Pad.buttons[key_mapper(key)]
-        cls()
-        if button._state == True:
-            button.change_state(False)
-            print(Pad)
-    except:
-        pass
+    keyaction(key, False)
+    print(KeyPad)
 
-def key_mapper(key):
-    """ This function maps a 4x4 grid from 4 rows x 4 columns on keyboard"""
-    if key.char == '1':
-        return 0, 0
-    elif key.char == '2':
-        return 0, 1
-    elif key.char == '3':
-        return 0, 2
-    elif key.char == '4':
-        return 0, 3
-    ## second row
-    elif key.char == 'q':
-        return 1, 0
-    elif key.char == 'w':
-        return 1, 1
-    elif key.char == 'e':
-        return 1, 2
-    elif key.char == 'r':
-        return 1, 3
-    # Third row
-    elif key.char == 'a':
-        return 2, 0
-    elif key.char == 's':
-        return 2, 1
-    elif key.char == 'd':
-        return 2, 2
-    elif key.char == 'f':
-        return 2, 3
-    ## Fourth row
-    elif key.char == 'z':
-        return 3, 0
-    elif key.char == 'x':
-        return 3, 1
-    elif key.char == 'c':
-        return 3, 2
-    elif key.char == 'v':
-        return 3, 3
+class MyException(Exception): pass
+
+def test_midi_input(*args):
+    channel, note, vel = args[0][0]
+    print ("Channel:", channel,"Note:", note,"Velocity:", vel)
+    if vel == 127:
+        for i in range(127):
+            midi_controller.send_midi_message(midiout, note, i)
+            time.sleep(.002)
+    else:
+        midi_controller.send_midi_message(midiout, note, vel)
 
 
-Pad = Grid(4, 4)
+if __name__ == "__main__":
+    os.environ['TERM'] = 'xterm'
+    cls()
+    KeyPad = grid.Grid(8, 8)
+    # KeyPad[0,0].assign_action(print, "Hello World")
+    # KeyPad(0,0)
 
-with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-    listener.join()
+    # instantiate midi output port and input port by same name (keep output first)
+    midiout = midi_controller.open_virtual_output_port("Launchpad")
+    midi_controller.create_port_callback(midi_controller.get_full_port_name("Launchpad"), test_midi_input)
 
+
+
+    while True:
+        time.sleep(1)
+    # with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+    #     try:
+    #         listener.join()
+    #     except MyException as e:
+    #         print('Exception occurred when {0} was pressed '.format(e.args[0]))
