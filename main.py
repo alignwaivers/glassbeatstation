@@ -2,12 +2,9 @@
 
 import os, time
 from pynput import keyboard
-
 import grid
 import cpu_keyboard_mapping
 import midi_io
-
-
 
 def cls():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -15,7 +12,7 @@ def cls():
         print()
 
 
-def keyaction(key, release):
+def keyaction (key, release):
     try:
         keychar = key.char
         button = KeyPad.buttons[cpu_keyboard_mapping.key_mapper(keychar)]
@@ -47,7 +44,7 @@ def test_midi_input(*args):
         for i in range(127):
             midi_io.send_midi_message(midiout, note, i)
             time.sleep(.001)
-        midi_io.send_midi_message(midiout, note, 127)
+        midi_io.send_midi_message(midiout, note, 120)
     else:
         midi_io.send_midi_message(midiout, note, vel)
 
@@ -58,6 +55,7 @@ if __name__ == "__main__":
     KeyPad = grid.Grid(8, 8)
     # KeyPad[0,0].assign_action(print, "Hello World")
     # KeyPad(0,0)
+
 
     # name = midi_io.get_full_port_name("Launchpad")
     midiout = midi_io.open_virtual_output_port("Launchpad")

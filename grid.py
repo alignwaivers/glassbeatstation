@@ -31,19 +31,25 @@ class Button:
     def __init__(self, x, y):
         self._state = False  # state is pressed or not
         self.pos = (x,y)
-        self.x_pos = None
-        self.y_pos = None
         self._action = None
         self._params = None
         self.num_actions = 0
         # self.assign_action(print)
 
-    def change_state(self, state):
-        if self._state != state:
-            self._state = state
+    @property
+    def state(self):
+        pressed = "pressed." if self._state == True else "unpressed"
+        print(self.pos, "is currently", pressed)
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        pressed = "pressed." if self._state == True else "unpressed"
+        print(self.pos, "has been", pressed)
+        if self._state != value:
+            self._state = value
         else:
             raise ValueError("This is a redundant button-press")
-
 
     def assign_action(self, function, params=None):
         if self.num_actions == 0:
