@@ -5,7 +5,7 @@ from pynput import keyboard
 
 import grid
 import cpu_keyboard_mapping
-import midi_controller
+import midi_io
 
 
 
@@ -45,29 +45,36 @@ def test_midi_input(*args):
     print ("Channel:", channel,"Note:", note,"Velocity:", vel)
     if vel == 127:
         for i in range(127):
-            midi_controller.send_midi_message(midiout, note, i)
-            time.sleep(.002)
+            midi_io.send_midi_message(midiout, note, i)
+            time.sleep(.001)
+        midi_io.send_midi_message(midiout, note, 127)
     else:
-        midi_controller.send_midi_message(midiout, note, vel)
+        midi_io.send_midi_message(midiout, note, vel)
 
 
 if __name__ == "__main__":
-    os.environ['TERM'] = 'xterm'
-    cls()
+    computer_key_input = False
+
     KeyPad = grid.Grid(8, 8)
     # KeyPad[0,0].assign_action(print, "Hello World")
     # KeyPad(0,0)
 
+    # name = midi_io.get_full_port_name("Launchpad")
+    midiout = midi_io.open_virtual_output_port("Launchpad")
+
     # instantiate midi output port and input port by same name (keep output first)
-    midiout = midi_controller.open_virtual_output_port("Launchpad")
-    midi_controller.create_port_callback(midi_controller.get_full_port_name("Launchpad"), test_midi_input)
+    midi_io.create_port_callback("Launchpad", test_midi_input)
+
+    if computer_key_input:
+        os.environ['TERM'] = 'xterm'
+        cls()
+        with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+            try:
+                listener.join()
+            except MyException as e:
+                print('Exception occurred when {0} was pressed '.format(e.args[0]))
+    else:
+        while True:
+            time.sleep(1)
 
 
-
-    while True:
-        time.sleep(1)
-    # with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-    #     try:
-    #         listener.join()
-    #     except MyException as e:
-    #         print('Exception occurred when {0} was pressed '.format(e.args[0]))
