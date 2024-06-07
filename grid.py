@@ -19,9 +19,9 @@ class Grid:
             grid_str += '\n'
         return grid_str
 
-    def __call__(self, x, y):
-        if y <= self.rows and x <= self.columns:
-            self.buttons[x, y]()
+    # def __call__(self, x, y):
+    #     if y <= self.rows and x <= self.columns:
+    #         self.buttons[x, y]()
 
     def __getitem__(self, key):
         return self.buttons[key]
@@ -33,8 +33,10 @@ class Button:
         self.pos = (x,y)
         self._action = None
         self._params = None
-        self.num_actions = 0
-        # self.assign_action(print)
+        self.press_actions = [] # create actions/execution class?
+        self.press_params = []
+        self.release_actions = []
+        self.release_params = []
 
     @property
     def state(self):
@@ -60,8 +62,10 @@ class Button:
         self.num_actions = 1
 
 
-    def __call__(self, *args, **kwargs):
-        print ("On the button")
+    def __call__(self, value):
+        value = 127 if value == True else False
+        pressed = "pressed" if value == True else "released"
+        print (f"Button {self.pos} was {pressed}")
         if self.num_actions == 1:
             # params = self._params[0] if len(self._params) > 0 else None
             self._action(self._params) #(self._params[0])

@@ -1,10 +1,11 @@
 import rtmidi.midiutil
 
-def MidiDevice():
-    def __init__():
+class MidiDevice():
+    def __init__(self):
         pass #
 
-def get_full_port_name(portname, inport=True):
+
+def get_full_port_name(portname: str, inport=True):
         mididevice = rtmidi.MidiIn() if inport else rtmidi.MidiOut()
         ports = mididevice.get_ports()
         for port in ports:
