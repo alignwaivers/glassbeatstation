@@ -1,14 +1,11 @@
 # /usr/bin/python3
 
 import os, time
-
 import grid
 import midi_io
 
 
 def test_midi_input(*args):
-    channel, note, vel = args[0][0]
-    print ("Channel:", channel,"Note:", note,"Velocity:", vel)
     if vel == 127:
         for i in range(127):
             midi_io.send_midi_message(midiout, note, i)
@@ -17,17 +14,15 @@ def test_midi_input(*args):
     else:
         midi_io.send_midi_message(midiout, note, vel)
 
-
-def midi_grid_mapping(*args):
+def grid_to_midi_mapping(x, y):
+    return x + y*16
+def midi_to_grid_mapping(*args):
     channel, note, vel = args[0][0]
     x = note % 16
     y = int(note / 16)
-    y = 7 - y
     press = True if vel == 127 else False
-    print (vel)
-    KeyPad[x, y](vel)
-
-
+    print (note)
+    KeyPad[x, y](press)
 
 def basic(*args):
     print (args)
@@ -36,16 +31,17 @@ if __name__ == "__main__":
 
     # instantiate midi ports
     midiout = midi_io.open_virtual_output_port("Launchpad")
-    midi_io.create_port_callback("Launchpad", midi_grid_mapping)
-    KeyPad = grid.Grid(9, 9)
-    KeyPad.buttons[0,0].assign_action(print, "Hello World")
-    KeyPad.buttons[1,0].assign_action(test_midi_input, "Hello World")
+    midi_io.create_port_callback("Launchpad", midi_to_grid_mapping)
+    KeyPad = grid.Grid(8, 8)
+    # KeyPad.buttons[0, 0].assign_action(print, "Hello World")
+    KeyPad.buttons[0, 0](True)
+    KeyPad.buttons[0, 0](False)
 
-    KeyPad.buttons[0,0](True)
-    print(KeyPad)
-
-    ## launchpad instantiation of functionalities
-
+    # Initial Launchpad Functions loaded
+    for y in range(8):
+        for x in range(8):
+            KeyPad[x, y].assign_action(print, grid_to_midi_mapping(x, y))
+            # KeyPad[x, y].assign_action(print, KeyPad, False)
 
     while True:
         time.sleep(1)
