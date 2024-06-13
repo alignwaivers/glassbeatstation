@@ -22,6 +22,13 @@ if __name__ == "__main__":
     GridController = controller.GridController(GridModel, GridView)
     LaunchpadInput.set_callback(GridController.midi_to_grid_mapping)
 
+
+    GridModel[0,2].set_action(LaunchpadOutput.send_messages, 60)
+
+    GridView[0,2].action()
+    GridView[2,2].action()
+
+
     try:
         while True:
             time.sleep(1)

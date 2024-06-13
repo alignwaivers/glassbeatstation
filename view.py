@@ -1,48 +1,18 @@
 class GridView:
     def __init__(self, model):
         self.model = model
-        self.buttons = {}
-        self.arguments = {}
-        for button in model.buttons.keys():
-            self.buttons[button] = Button(button[0], button[1])
-
-
-        self[0,0].action()
-        self[0,0].release()
-
 
     def __getitem__(self, key):
-        return self.buttons[key]
+        return self.model.grid[key]
 
-class Button:
-    def __init__(self, col, row):
-        self._actions = {True: [], False: []}
-        self._arguments = {True: [], False: []}
-        self.row = row
-        self.col = col
-
-    def set_release(self, action, arguments):
-        self.set_action(action, arguments, press=False)
-
-
-    def set_action(self, action, arguments, press=True):
-        self._actions[press].append(action)
-        self._arguments[press].append(arguments)
-
-    def release(self):
-        self.action(press=False)
-
-    def action(self, press=True):
-        actions = self._actions[press]
-        arguments = self._arguments[press]
-        if len(arguments) > 0:
-            for i in range(len(actions)):
-                if isinstance(arguments[i], list):
-                    actions[i](*arguments[i])
-                else:
-                    actions[i](arguments[i])
-
-
+    def __str__(self):
+        rows, columns = self.model.rows, self.model.columns
+        console_grid = "\n"
+        for col in range(columns):
+            for row in range(rows):
+                console_grid += "[X] " if self.model[row, col]._state == True else "[ ] "
+            console_grid += "\n"
+        return console_grid
 
 # def action(self, *args):
 #     if not args:
