@@ -3,10 +3,15 @@ class GridController:
         self.model = model
         self.view = view
 
+    def trigger_button(self, row, col):
+        pass
+
     def midi_to_grid_mapping(self, *args):
-        print ("button pressed :", args[0])
         channel, note, vel = args[0]
         x = note % 16
         y = int(note / 16)
+        toggle = "released :" if vel == 0 else "pressed :"
+        print (f"Mode {self.model.mode} Button {x, y} {toggle} note={note}, velocity={vel}")
         press = True if vel == 127 else False
+        self.model.state = press
         self.view[x, y].action(press)

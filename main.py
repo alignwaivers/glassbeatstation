@@ -9,6 +9,7 @@ import midi_io
 
 
 def grid_to_midi_mapping(x, y):
+    # print (x + y*16)
     return x + y*16
 
 if __name__ == "__main__":
@@ -17,23 +18,29 @@ if __name__ == "__main__":
     AltMidi = midi_io.MidiOutput("Alt-output")
     LaunchpadInput = midi_io.MidiInput("Launchpad")
 
-    GridModel = grid.Grid(8, 8)
-    GridView = view.GridView(GridModel)
+    GridModel = grid.Grid(8, 8, 3)
+    GridView = view.GridView(GridModel, LaunchpadOutput)
     GridController = controller.GridController(GridModel, GridView)
     LaunchpadInput.set_callback(GridController.midi_to_grid_mapping)
+    # LaunchpadInput.set_callback(print)
+    for button in GridModel.grid.keys():
+        GridModel[button].set_action(LaunchpadOutput.send_messages, [grid_to_midi_mapping(*button), 115])
+        # GridModel[button].set_action(print,grid_to_midi_mapping(*button))
+        GridModel[button].set_release(LaunchpadOutput.send_messages, [grid_to_midi_mapping(*button), 0])
 
 
-    GridModel[0,2].set_action(LaunchpadOutput.send_messages, 60)
-
-    GridView[0,2].action()
-    GridView[2,2].action()
-
+    for button in GridModel.grid.keys():
+        GridModel[button].set_action(LaunchpadOutput.send_messages, [grid_to_midi_mapping(*button), 100], mode=1)
+        GridModel[button].set_release(LaunchpadOutput.send_messages, [grid_to_midi_mapping(*button), 1], mode=1)
 
     try:
         while True:
             time.sleep(1)
+
+
     except KeyboardInterrupt:
         print("exiting")
+        GridView.release_leds()
 
 
 
