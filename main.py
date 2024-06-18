@@ -37,7 +37,8 @@ if __name__ == "__main__":
 
     # start osc server
     try:
-        server.serve_forever()
+        import osc_server
+
 
     except KeyboardInterrupt:
         print("exiting")
