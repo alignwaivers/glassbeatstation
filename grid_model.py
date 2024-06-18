@@ -24,6 +24,7 @@ class Button:
         self._arguments = [{True: [], False: []} for mode in range(grid.num_modes)]
         self.row = row
         self.col = col
+        # self.clr_stack = None
 
     @property
     def state(self):
