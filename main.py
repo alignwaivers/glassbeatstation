@@ -6,8 +6,9 @@ import grid_controller
 import grid_view
 import grid_model
 import midi_io
-from pythonosc import udp_client, dispatcher, osc_server
-import osc_interface
+import osc_server
+# from pythonosc import udp_client, dispatcher, osc_server
+# import osc_interface
 
 
 def grid_to_midi_mapping(x, y):
@@ -23,7 +24,9 @@ if __name__ == "__main__":
     GridView = grid_view.GridView(GridModel, LaunchpadOutput)
     GridController = grid_controller.GridController(GridModel, GridView)
     LaunchpadInput.set_callback(GridController.midi_to_grid_mapping)
-    server = osc_server.ThreadingOSCUDPServer(("localhost", 9998), dispatcher)
+    # start osc server
+    osc_server = osc_server.OSC_Receiver()
+
 
     for button in GridModel.grid.keys():
         GridModel[button].set_action(LaunchpadOutput.send_messages, [grid_to_midi_mapping(*button), 115])
@@ -35,14 +38,17 @@ if __name__ == "__main__":
         GridModel[button].set_action(LaunchpadOutput.send_messages, [grid_to_midi_mapping(*button), 100], mode=1)
         GridModel[button].set_release(LaunchpadOutput.send_messages, [grid_to_midi_mapping(*button), 1], mode=1)
 
-    # start osc server
-    try:
-        import osc_server
+    while True:
+        try:
+            time.sleep(.01)
+            osc_server.server_thread.join()
 
 
-    except KeyboardInterrupt:
-        print("exiting")
-        GridView.release_leds()
+        except KeyboardInterrupt:
+            print("exiting")
+            osc_server.shutdown()
+            GridView.release_leds()
+
 
 
 
