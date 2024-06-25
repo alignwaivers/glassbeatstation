@@ -5,8 +5,10 @@ import time
 import grid_controller
 import grid_view
 import grid_model
+import looper
 import midi_io
 import osc_server
+import osc_sender
 # from pythonosc import udp_client, dispatcher, osc_server
 # import osc_interface
 
@@ -15,22 +17,30 @@ def grid_to_midi_mapping(x, y):
     return x + y*16
 
 if __name__ == "__main__":
-    # instantiate midi ports
+    # instantiate Launchpad midi ports
     LaunchpadOutput = midi_io.MidiOutput("Launchpad", False)
-    AltMidi = midi_io.MidiOutput("Alt-output")
+    # AltMidi = midi_io.MidiOutput("Alt-output")
     LaunchpadInput = midi_io.MidiInput("Launchpad")
 
+    # Instantiate grid model, view, and controller
     GridModel = grid_model.Grid(8, 8, 3)
     GridView = grid_view.GridView(GridModel, LaunchpadOutput)
     GridController = grid_controller.GridController(GridModel, GridView)
+
+    # Set the callback for the midi input
     LaunchpadInput.set_callback(GridController.midi_to_grid_mapping)
+
     # start osc server
     osc_server = osc_server.OSC_Receiver()
+
+    # instantiate sooperlooper
+    LooperOSC_output = osc_sender.OSC_Sender()
+    SooperLooper = looper.Looper(8, LooperOSC_output, "9981")
+    osc_server.add_handler("/sloop", SooperLooper.handle_input)
 
 
     for button in GridModel.grid.keys():
         GridModel[button].set_action(LaunchpadOutput.send_messages, [grid_to_midi_mapping(*button), 115])
-        # GridModel[button].set_action(print,grid_to_midi_mapping(*button))
         GridModel[button].set_release(LaunchpadOutput.send_messages, [grid_to_midi_mapping(*button), 0])
 
 
@@ -40,7 +50,7 @@ if __name__ == "__main__":
 
     while True:
         try:
-            time.sleep(.01)
+            time.sleep(.005)
             osc_server.server_thread.join()
 
 
