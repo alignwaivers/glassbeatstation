@@ -48,10 +48,12 @@ if __name__ == "__main__":
         GridModel[button].set_action(LaunchpadOutput.send_messages, [grid_to_midi_mapping(*button), 100], mode=1)
         GridModel[button].set_release(LaunchpadOutput.send_messages, [grid_to_midi_mapping(*button), 1], mode=1)
 
+
     while True:
         try:
             time.sleep(.005)
             osc_server.server_thread.join()
+
 
 
         except KeyboardInterrupt:

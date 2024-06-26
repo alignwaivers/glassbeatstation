@@ -7,3 +7,6 @@ class OSC_Sender():
     def send(self, addr, arg):
         self.osc_client.send_message(addr, arg)
 
+if __name__ == "__main__":
+    test_sender = OSC_Sender()
+    test_sender.send("/sl/0/down", "trigger")

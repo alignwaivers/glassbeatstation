@@ -12,7 +12,7 @@ class Looper():
 
     def handle_input(self, *args):
         prefix, loop_num, command, value = args[0], args[1], args[2], args[3::]
-        # print (args)
+        print (args)
         loop = self.loops[loop_num]#
         # TODO handle dependency actions based on grid mode
         if command == "state":
@@ -22,8 +22,9 @@ class Looper():
         elif command == "loop_len":
             loop.update_len(value[0])
 class Loop():
-    def __init__(self, index, osc, return_port, interval=10):
+    def __init__(self, index, osc_out, return_port, interval=10):
         print ("Loop #{} created".format(index))
+        self.osc_out = osc_out
         self.loop_idx = index
         self.state = "paused"
         self.length = None
@@ -72,12 +73,17 @@ class Loop():
         Bright Amber: MIDI note value 123
         '''
 
-        osc.send("/sl/{}/register_auto_update".format(index),
+        osc_out.send("/sl/{}/register_auto_update".format(index),
                  ["state", interval, "localhost:"+return_port, "/sloop"])
-        osc.send("/sl/{}/register_auto_update".format(index),
+        osc_out.send("/sl/{}/register_auto_update".format(index),
                  ["loop_len", interval, "localhost:"+return_port, "/sloop"])
-        osc.send("/sl/{}/register_auto_update".format(index),
+        osc_out.send("/sl/{}/register_auto_update".format(index),
                  ["loop_pos", interval, "localhost:"+return_port,"/sloop"])
+
+    def loop_action(self, action):
+        print ("/sl/{}/down".format(self.loop_idx), action)
+        self.osc_out.send("/sl/{}/down".format(self.loop_idx), action)
+
 
     # The following "update" methods have been routed via OSC messages from sooperlooper
     def update_len(self, length):
