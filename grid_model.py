@@ -7,7 +7,6 @@ class Grid:
         self.rows = rows
         self.columns = columns
 
-        
         for y in range(rows):
             for x in range(columns):
                 self.grid[(x, y)] = Button(x, y, self)
@@ -22,9 +21,9 @@ class Button:
         self._state = False
         self._actions = [{True: [], False: []} for mode in range(grid.num_modes)]
         self._arguments = [{True: [], False: []} for mode in range(grid.num_modes)]
-        self.row = row
-        self.col = col
-        # self.clr_stack = None
+        self.pos = col, row
+        self.note = col + row*16
+        self.clr = [0, 127] # Default on/off colors, need to update for rgb
 
     @property
     def state(self):

@@ -27,4 +27,15 @@ class GridView:
         else:
             print(f"Remaining in mode {self.model.mode}")
 
+    def map_to_midi(self, x, y):
+        return x + y*16
+
+    def switch_mode(self, mode):
+         if self.model.mode != mode: # could implement the difference of clrs only here
+            self.model.mode = mode
+            for button in self.model.grid.keys():
+                self.midi_output.send_messages(button.note, button.clr[mode])
+         else:
+            print(f"Mode unchanged: Already in mode {mode}")
+
 
